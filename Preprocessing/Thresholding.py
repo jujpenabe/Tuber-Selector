@@ -44,41 +44,42 @@ def adaptive_threshold(image):
         plt.title(titles[i])
         plt.xticks([]), plt.yticks([])
     plt.show()
-
+    
+def hsv_otsu_threshold(image):
+    #convertir de formato BGR a RGB
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    #Aplicar filtro paso bajo (blur)
+    image = cv2.blur(image,(31,31),0)
+    #Convertir imágen a espacio de color HSV
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    #separar canales hsv
+    h, s, v = cv2.split(hsv)
+    #aplicar binarización OTSU
+    _, thr = cv2.threshold(h, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    return thr
+def and_mask(original, masked):
+    masked = cv2.bitwise_and(original, original, mask=masked)
+    return masked
 def otsu_threshold(image):
+    listImg = []
     # Noisy image input
-    original = cv2.imread(image)[:, :, ::-1]  # (Test with RGB and GBR)
-
+    original = image  # (Test with RGB and GBR)
     # global thresholding with color
-    ret0, th0 = cv2.threshold(original, 106, 255, cv2.THRESH_BINARY)
-
+    # ret0, th0 = cv2.threshold(original, 110, 255, cv2.THRESH_BINARY)
     # To grayscale
-    img = cv2.cvtColor(th0, cv2.COLOR_BGR2GRAY)
-
-
+    # img = cv2.cvtColor(th0, cv2.COLOR_BGR2GRAY)
     # Otsu's thresholding
-    ret2, th1 = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
+    # ret1, th1 = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     # Otsu's thresholding after Gaussian filtering
-    blur = cv2.GaussianBlur(img, (5, 5), 0)
-    ret3, th2 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    # plot all the images and their histograms
-    images = [original, 0, th0,
-              img, 0, th1,
-              blur, 0, th2]
-    titles = ['Original Noisy Image', 'Histogram', 'G.Thresholding V=106',
-              'Gray Noisy Image', 'Histogram', "Otsu's Thresholding",
-              'Gaussian filtered Image', 'Histogram', "Otsu's Thresholding"]
-    for i in range(3):
-        plt.subplot(3, 3, i * 3 + 1), plt.imshow(images[i * 3], 'gray')
-        plt.title(titles[i * 3]), plt.xticks([]), plt.yticks([])
-        plt.subplot(3, 3, i * 3 + 2), plt.hist(images[i * 3].ravel(), 256)
-        plt.title(titles[i * 3 + 1]), plt.xticks([]), plt.yticks([])
-        plt.subplot(3, 3, i * 3 + 3), plt.imshow(images[i * 3 + 2], 'gray')
-        plt.title(titles[i * 3 + 2]), plt.xticks([]), plt.yticks([])
-    plt.show()
-
+    blur = cv2.GaussianBlur(image, (5, 5), 0)
+    ret, th2 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    img = cv2.bitwise_and(original, original, mask=th2)
+    
+    listImg.append(th2)
+    listImg.append(img)
+    # Return filtered images
+    return listImg;
+ 
 if __name__ == '__main__':
     print("... Running Thresholding Directly...")
     # threshold()
