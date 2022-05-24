@@ -89,7 +89,7 @@ def getROI(image, mask):
     return croppedImg, polyRectImage, contourArea, minRectArea, straightArea, minCircleArea
 
 def test():
-    file = "../Samples/Renders/blender_potato2_1_light.jpg"
+    file = "../Renders/blender_potato2_1_light.jpg"
     # images = prp.otsu_threshold(file)
     # images = segment(file)
     inputImage = cv2.imread(file) [:,:,::-1]

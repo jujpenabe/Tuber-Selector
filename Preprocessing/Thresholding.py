@@ -45,18 +45,18 @@ def adaptive_threshold(image):
         plt.xticks([]), plt.yticks([])
     plt.show()
     
-def hsv_otsu_threshold(image):
-    #convertir de formato BGR a RGB
+def hsv_otsu_threshold(image, channel = 0):
+    # Convertir de formato BGR a RGB
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    #Aplicar filtro paso bajo (blur)
+    # Aplicar filtro paso bajo (blur)
     image = cv2.blur(image,(31,31),0)
-    #Convertir imágen a espacio de color HSV
+    # Convertir imágen a espacio de color HSV
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    #separar canales hsv
-    h, s, v = cv2.split(hsv)
-    #aplicar binarización OTSU
-    _, thr = cv2.threshold(h, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    return thr
+    # Separar canales hsv
+    hsv = cv2.split(hsv)
+    # Aplicar binarización OTSU
+    _, thr = cv2.threshold(hsv[channel], 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    return hsv[channel],thr
 def and_mask(original, masked):
     masked = cv2.bitwise_and(original, original, mask=masked)
     return masked
