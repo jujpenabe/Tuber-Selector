@@ -8,14 +8,12 @@ cap = cv.VideoCapture('./assets/cam.avi')
 
 hue_palette = cv.imread('./assets/hue_palette.png', 1)
 
-video_speed = 15
+video_speed = 10
 frame_counter = 0
 PAUSE = False
 QUIT = False
-HUE_MIN = 0
-HUE_MAX = 20
-
-
+HUE_MIN = 109
+HUE_MAX = 169         # This data should change
 
 def updateRange(key):
     global HUE_MIN, HUE_MAX
@@ -29,9 +27,10 @@ def updateRange(key):
         HUE_MAX = HUE_MAX - 1 if HUE_MAX > 0 else 179
     if key == 'a' and range > 4:
         HUE_MAX = HUE_MAX - 1 if HUE_MAX > 0 else 179
-    if key == 'd' and range < 60:
+    if key == 'd' and range < 90:
         HUE_MAX = HUE_MAX + 1 if HUE_MAX < 179 else 0
-    (f"New HUE range: ({HUE_MIN} , {HUE_MAX})")
+    print(f"New HUE range: ({HUE_MIN} , {HUE_MAX})")
+    
     # Draw updated pallete
     RADIUS = 175
     CENTER = (205, 200)
@@ -49,7 +48,6 @@ def updateRange(key):
     cv.line(palette, CENTER, pt_min, (100, 100, 100), 2)
     cv.line(palette, CENTER, pt_max, (100, 100, 100), 2)
     cv.imshow('Palette', palette)
-
 
 def threshold(img, hue_min, hue_max):
     th_min = (img >= hue_min)
@@ -76,7 +74,6 @@ while (1):
         QUIT = True
     # Pause Loop    
     while (2):
-
         # Wait key pressed event
         key = cv.waitKey(video_speed)
 
@@ -100,7 +97,7 @@ while (1):
         # 
         # img_th = threshold(hue, HUE_MIN, HUE_MAX)
 
-        hue, img_th = pr_th.hsv_otsu_threshold(frame)
+        hue, img_th = pr_th.hsv_otsu_threshold(frame, HUE_MIN, HUE_MAX, 0)
 
         # endregion
 
