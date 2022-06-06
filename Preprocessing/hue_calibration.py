@@ -1,41 +1,47 @@
 import cv2 as cv
 import numpy as np
 import math
-import Preprocessing.Thresholding as pr_th
+import Preprocess as pr
+import json
 
-# cap = cv.VideoCapture(1)
-cap = cv.VideoCapture('./assets/cam.avi')
+cap = cv.VideoCapture(1)
+# cap = cv.VideoCapture('./assets/cam.avi')
 
-hue_palette = cv.imread('./assets/hue_palette.png', 1)
+hue_palette = cv.imread('./Preprocessing/assets/hue_palette.png', 1)
 
 video_speed = 10
 frame_counter = 0
 PAUSE = False
 QUIT = False
-HUE_MIN = 109
-HUE_MAX = 169         # This data should change
+
+def load_variables():
+    f = open('./variables.json')
+    return json.load(f)
+
+
+DATA = load_variables()
 
 def updateRange(key):
-    global HUE_MIN, HUE_MAX
+    global DATA
     # Update HUE limits
-    range = min(abs(HUE_MAX - HUE_MIN), 180 - abs(HUE_MAX - HUE_MIN))
+    range = min(abs(DATA['HUE_MAX'] - DATA['HUE_MIN']), 180 - abs(DATA['HUE_MAX'] - DATA['HUE_MIN']))
     if key == 'w':
-        HUE_MIN = HUE_MIN + 1 if HUE_MIN < 179 else 0
-        HUE_MAX = HUE_MAX + 1 if HUE_MAX < 179 else 0
+        DATA['HUE_MIN'] = DATA['HUE_MIN'] + 1 if DATA['HUE_MIN'] < 179 else 0
+        DATA['HUE_MAX'] = DATA['HUE_MAX'] + 1 if DATA['HUE_MAX'] < 179 else 0
     if key == 's':
-        HUE_MIN = HUE_MIN - 1 if HUE_MIN > 0 else 179
-        HUE_MAX = HUE_MAX - 1 if HUE_MAX > 0 else 179
+        DATA['HUE_MIN'] = DATA['HUE_MIN'] - 1 if DATA['HUE_MIN'] > 0 else 179
+        DATA['HUE_MAX'] = DATA['HUE_MAX'] - 1 if DATA['HUE_MAX'] > 0 else 179
     if key == 'a' and range > 4:
-        HUE_MAX = HUE_MAX - 1 if HUE_MAX > 0 else 179
+        DATA['HUE_MAX'] = DATA['HUE_MAX'] - 1 if DATA['HUE_MAX'] > 0 else 179
     if key == 'd' and range < 90:
-        HUE_MAX = HUE_MAX + 1 if HUE_MAX < 179 else 0
-    print(f"New HUE range: ({HUE_MIN} , {HUE_MAX})")
-    
+        DATA['HUE_MAX'] = DATA['HUE_MAX'] + 1 if DATA['HUE_MAX'] < 179 else 0
+    print(f"New HUE range: ({DATA['HUE_MIN']} , {DATA['HUE_MAX']})")
+
     # Draw updated pallete
     RADIUS = 175
     CENTER = (205, 200)
-    ang_min = -HUE_MIN * 2
-    ang_max = -HUE_MAX * 2
+    ang_min = -DATA['HUE_MIN'] * 2
+    ang_max = -DATA['HUE_MAX'] * 2
     pt_min = (
         CENTER[0] + int(RADIUS * math.cos(ang_min * math.pi / 180)),
         CENTER[1] + int(RADIUS * math.sin(ang_min * math.pi / 180))
@@ -49,13 +55,6 @@ def updateRange(key):
     cv.line(palette, CENTER, pt_max, (100, 100, 100), 2)
     cv.imshow('Palette', palette)
 
-def threshold(img, hue_min, hue_max):
-    th_min = (img >= hue_min)
-    th_max = (img <= hue_max)
-    th = (th_min * th_max) if hue_min < hue_max else (th_min + th_max)
-    th = th * 255
-    return th.astype(np.uint8)
-
 
 # Show initial windows
 updateRange(None)
@@ -65,6 +64,8 @@ ret, frame = cap.read()
 while (1):
     # Read next frame
     ret, frame = cap.read()
+    # Flip image (TEMP)
+    frame = cv.flip(frame, -1)
     frame_counter += 1
     if frame_counter == cap.get(cv.CAP_PROP_FRAME_COUNT):
         frame_counter = 0
@@ -72,10 +73,13 @@ while (1):
         continue
     if not ret:
         QUIT = True
-    # Pause Loop    
+    # Pause Loop
     while (2):
         # Wait key pressed event
         key = cv.waitKey(video_speed)
+
+        # TODO add key to store the DATA['HUE_MIN'] and DATA['HUE_MAX'] values into the json
+        # TODO add key to calibrate kernel size for blur
 
         if key == ord('w'):
             updateRange('w')
@@ -92,12 +96,9 @@ while (1):
 
         # region FRAME PROCESSING
 
-        # img_hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
-        # hue = img_hsv[:, :, 0]
-        # 
-        # img_th = threshold(hue, HUE_MIN, HUE_MAX)
+        hue, img_th = pr.hsv_otsu_threshold(frame, DATA['BLUR_SIZE'], DATA['HUE_MIN'], DATA['HUE_MAX'])
 
-        hue, img_th = pr_th.hsv_otsu_threshold(frame, HUE_MIN, HUE_MAX, 0)
+        pr.contour_detection(frame, img_th, DATA['MIN_PX_CONTOUR'])
 
         # endregion
 
@@ -115,7 +116,8 @@ while (1):
         if not PAUSE or QUIT:  # Go to next frame
             break
         # endregion
-    if QUIT: break
+    if QUIT:
+        break
 # End process
 cap.release()
 cv.destroyAllWindows()
