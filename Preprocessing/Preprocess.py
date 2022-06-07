@@ -14,7 +14,7 @@ def hsv_otsu_threshold(image, blur, value_min, value_max, channel=0):
     th_min = (hsv[:, :, channel] >= value_min)
     th_max = (hsv[:, :, channel] <= value_max)
     th = (th_min * th_max) if value_min < value_max else (th_min + th_max)
-    th = th * 255  # TODO cheif uint8 is really necessary
+    th = th * 255  # TODO check if uint8 is really necessary
     th = th.astype(np.uint8)
 
     # Aplicar binarización OTSU

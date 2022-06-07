@@ -1,6 +1,7 @@
 # The next threshold functions are based on the OpenCV thresholding documentation.
 # https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
 
+from calendar import c
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
@@ -45,24 +46,19 @@ def adaptive_threshold(image):
         plt.xticks([]), plt.yticks([])
     plt.show()
     
-def hsv_otsu_threshold(image, value_min, value_max, channel = 0):
-    # Convertir de formato BGR a RGB
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+def hsv_otsu_threshold(image, channel = 0):
     # Aplicar filtro paso bajo (blur)
-    image = cv2.blur(image,(50,50),0)
+    image = cv2.blur(image,(25,25),0)
     # Convertir imágen a espacio de color HSV
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     # Separar canales hsv
     hsv = cv2.split(hsv)
-
-    th_min = (hsv[channel] >= value_min)
-    th_max = (hsv[channel] <= value_max)
-    th = (th_min * th_max) if value_min < value_max else (th_min + th_max)
-    th = th * 255
-    th = th.astype(np.uint8)
     
+    th = hsv[channel]
+
     # Aplicar binarización OTSU
     _, thr = cv2.threshold(th, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
     return hsv[channel],thr
 def and_mask(original, masked):
     masked = cv2.bitwise_and(original, original, mask=masked)
