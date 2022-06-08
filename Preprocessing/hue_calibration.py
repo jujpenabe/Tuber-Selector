@@ -4,8 +4,9 @@ import math
 import Preprocess as pr
 import json
 
-cap = cv.VideoCapture(1)
-# cap = cv.VideoCapture('./assets/cam.avi')
+# Select video source
+# cap = cv.VideoCapture(1)
+cap = cv.VideoCapture('./Preprocessing/assets/cam.avi')
 
 hue_palette = cv.imread('./Preprocessing/assets/hue_palette.png', 1)
 

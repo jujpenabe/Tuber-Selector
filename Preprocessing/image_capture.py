@@ -1,6 +1,5 @@
 import cv2 as cv
 import numpy as np
-import math
 import Preprocess as pr
 import json
 
@@ -12,7 +11,10 @@ def load_variables():
 
 DATA = load_variables()
 
-cap = cv.VideoCapture(1)
+# Select video source
+# cap = cv.VideoCapture(1)
+cap = cv.VideoCapture('./Preprocessing/assets/cam.avi')
+
 frame_counter = 0
 
 while (1):
@@ -34,21 +36,19 @@ while (1):
         (x, y, w, h) = boxes[0]
         potato = frame[y:y+h, x:x+w, :]
 
-
-        res_potato  = cv.resize(potato, (DATA['IMG_SIZE'], DATA['IMG_SIZE']))
-
-        
+        res_potato = cv.resize(potato, (DATA['IMG_SIZE'], DATA['IMG_SIZE']))
 
         cv.imshow('Original Potato', potato)
         cv.imshow('Resized Potato', res_potato)
         print(res_potato.shape)
-
 
         for bb in boxes:
             (x, y, w, h) = bb
             cv.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 3)
 
     cv.imshow('Original', frame)
+    cv.imshow('Hue channel', cv.resize(
+        hue, (hue.shape[1] // 2, hue.shape[0] // 2), cv.INTER_AREA))
     cv.imshow('Threshold', cv.resize(
         img_th, (img_th.shape[1] // 2, img_th.shape[0] // 2), cv.INTER_AREA))
 

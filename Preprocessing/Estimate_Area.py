@@ -77,7 +77,8 @@ def getROI(image, mask):
     return croppedImg, polyRectImage, contourArea, minRectArea, straightArea, minCircleArea
 
 def test():
-    file = "Renders/blender_potato2_1_light.jpg"
+    # file = "Renders/blender_potato2_1_light.jpg"
+    file = "./Preprocessing/assets/photo1.png"
 
     inputImage = cv2.imread(file) [:,:,::-1]
     
