@@ -30,11 +30,20 @@ def box_detection(img_th, min_pixels, margin = 0):
     # Filter contours
     for cont in contours:
         (x, y, w, h) = cv.boundingRect(cont)
+        M = cv.moments(cont)
         c1 = w > min_pixels and h > min_pixels
         c2 = x-margin >= 0 and x + w + margin <= img_th.shape[1]
         c3 = y-margin >= 0 and y + h + margin <= img_th.shape[0]
-        if c1 and c2 and c3:
+        c4 = M['m00'] != 0
+        if c1 and c2 and c3 and c4:
             boxes.append((x-margin, y-margin, w+2*margin, h+2*margin))
+            if M['m00'] != 0:
+                cx = int(M['m10']/M['m00'])
+                cy = int(M['m01']/M['m00'])
+                cv.drawContours(img_th, [cont], -1, (0, 255, 0), 2)
+                cv.circle(img_th, (cx, cy), 7, (0, 0, 255), -1)
+                cv.putText(img_th, "center", (cx - 20, cy - 20),
+                           cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
     return boxes
 
 

@@ -3,9 +3,15 @@ import numpy as np
 import Preprocess as pr
 import json
 
+video_speed = 10
+frame_counter = 0
+FLIP = False
+PAUSE = False
+QUIT = False
+
 
 def load_variables():
-    f = open('./variables.json')
+    f = open('../variables.json')
     return json.load(f)
 
 
@@ -13,16 +19,17 @@ DATA = load_variables()
 
 # Select video source
 # cap = cv.VideoCapture(1)
-cap = cv.VideoCapture('./Preprocessing/assets/cam.avi')
+cap = cv.VideoCapture('./assets/Papas_Buenas_Secas_1.mp4')
 
-frame_counter = 0
+
 
 while (1):
     # Read next frame
     ret, frame = cap.read()
-    # Flip image
-    frame = cv.flip(frame, -1)
     frame_counter += 1
+    # Flip image
+    if FLIP:
+        frame = cv.flip(frame, -1)
 
     hue, img_th = pr.hsv_otsu_threshold(
         frame, DATA['BLUR_SIZE'], DATA['HUE_MIN'], DATA['HUE_MAX'])
