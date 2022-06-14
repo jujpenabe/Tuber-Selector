@@ -16,6 +16,19 @@ DATA = load_variables()
 cap = cv.VideoCapture(0)
 # cap = cv.VideoCapture('./assets/cam.avi')
 
+# Default res is 640x480 px, but the camera supports a resolution of 1280x720 px
+# Use next function to update image resolution
+def setImageResolution():
+    w = cap.get(cv.CAP_PROP_FRAME_WIDTH)
+    h = cap.get(cv.CAP_PROP_FRAME_HEIGHT)
+    print("Frame default resolution:", w, h)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, 2000)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 2000)
+    w = cap.get(cv.CAP_PROP_FRAME_WIDTH)
+    h = cap.get(cv.CAP_PROP_FRAME_HEIGHT)
+    print("NEW Frame default resolution:", w, h)
+
+
 video_speed = 10
 frame_counter = 0
 aux_timestamp = 0
