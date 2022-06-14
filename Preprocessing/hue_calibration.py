@@ -6,7 +6,7 @@ import json
 
 # Select video source
 # cap = cv.VideoCapture(1)
-cap = cv.VideoCapture('./assets/Papas_Buenas_Secas_1.mp4')
+cap = cv.VideoCapture('./assets/cam.avi')
 
 hue_palette = cv.imread('./assets/hue_palette.png', 1)
 
