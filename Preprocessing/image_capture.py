@@ -2,12 +2,7 @@ import cv2 as cv
 import numpy as np
 import Preprocess as pr
 import json
-
-video_speed = 10
-frame_counter = 0
-FLIP = False
-PAUSE = False
-QUIT = False
+import time
 
 
 def load_variables():
@@ -18,18 +13,31 @@ def load_variables():
 DATA = load_variables()
 
 # Select video source
-# cap = cv.VideoCapture(1)
-cap = cv.VideoCapture('./assets/Papas_Buenas_Secas_1.mp4')
+cap = cv.VideoCapture(0)
+# cap = cv.VideoCapture('./assets/cam.avi')
 
-
+video_speed = 10
+frame_counter = 0
+aux_timestamp = 0
+img_count = 332
+STORE_IMG = False
+QUIT = False
 
 while (1):
+
+    # Wait key pressed event
+    key = cv.waitKey(video_speed)
+    if key == 32:  # Space
+        STORE_IMG = not STORE_IMG
+        print('Sotre images', 'ENABLED' if STORE_IMG else 'DISABLED')
+    elif key == 27:  # ESC
+        QUIT = not QUIT
+
     # Read next frame
     ret, frame = cap.read()
-    frame_counter += 1
     # Flip image
-    if FLIP:
-        frame = cv.flip(frame, -1)
+    frame = cv.flip(frame, -1)
+    frame_counter += 1
 
     hue, img_th = pr.hsv_otsu_threshold(
         frame, DATA['BLUR_SIZE'], DATA['HUE_MIN'], DATA['HUE_MAX'])
@@ -47,7 +55,6 @@ while (1):
 
         cv.imshow('Original Potato', potato)
         cv.imshow('Resized Potato', res_potato)
-        print(res_potato.shape)
 
         for bb in boxes:
             (x, y, w, h) = bb
@@ -59,37 +66,20 @@ while (1):
     cv.imshow('Threshold', cv.resize(
         img_th, (img_th.shape[1] // 2, img_th.shape[0] // 2), cv.INTER_AREA))
 
-    if cv.waitKey(1) == 27:
+    # TIME
+    timestamp = time.perf_counter()
+    if timestamp - aux_timestamp >= DATA['PHOTO_INTERVAL']:
+        aux_timestamp = timestamp
+        if STORE_IMG:
+            filename = f'img_{img_count:04d}.jpg'
+            print(f'New image Capture {filename} on {timestamp} sec.')
+            cv.imwrite('images/' + filename, res_potato)
+            img_count += 1
+
+    # Exit program
+    if QUIT:
         break
 
-#     if frame_counter == cap.get(cv.CAP_PROP_FRAME_COUNT):
-#         frame_counter = 0
-#         cap.set(cv.CAP_PROP_POS_FRAMES, 0)
-#         continue
-#     if not ret:
-#         QUIT = True
-#     # Pause Loop
-    # while (2):
-    #     # Wait key pressed event
-    #     key = cv.waitKey(video_speed)
-
-#
-
-#         # region FRAME DISPLAY
-
-#         cv.imshow('Original', frame)
-#         cv.imshow('Hue channel', cv.resize(
-#             hue, (hue.shape[1] // 2, hue.shape[0] // 2), cv.INTER_AREA))
-#         cv.imshow('Threshold', cv.resize(
-#             img_th, (img_th.shape[1] // 2, img_th.shape[0] // 2), cv.INTER_AREA))
-
-#         # endregion
-
-#         # region VIDEO CONTROL
-#         if not PAUSE or QUIT:  # Go to next frame
-#             break
-#         # endregion
-#     if QUIT: break
 
 # End process
 cap.release()

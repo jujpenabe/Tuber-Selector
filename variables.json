@@ -1,8 +1,9 @@
 {
      "IMG_SIZE": 250,
-     "BLUR_SIZE": 100,
-     "HUE_MIN": 130,
-     "HUE_MAX": 13,
+     "BLUR_SIZE": 23,
+     "HUE_MIN": 132,
+     "HUE_MAX": 17,
      "BOUNDING_BOX_MARGIN": 25,
-     "MIN_PX_CONTOUR": 100
+     "MIN_PX_CONTOUR": 100,
+     "PHOTO_INTERVAL": 1
 }
