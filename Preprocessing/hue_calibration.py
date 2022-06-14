@@ -56,7 +56,19 @@ def update_data(key):
         DATA['BLUR_SIZE'] = DATA['BLUR_SIZE'] - 1 if DATA['BLUR_SIZE'] > 1 else 1
     if key == 'e':
         DATA['BLUR_SIZE'] = DATA['BLUR_SIZE'] + 1 if DATA['BLUR_SIZE'] < 150 else 150
-
+    if key == 'i':
+        DATA['UP_BOUND'] = DATA['UP_BOUND'] - 1 if DATA['UP_BOUND'] > 0 else 0
+        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] - 1 if DATA['UP_BOUND'] > 0 else 0 
+    if key == 'k':
+        DATA['UP_BOUND'] = DATA['UP_BOUND'] + 1 if DATA['UP_BOUND'] < 480 else 480
+        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] + 1 if DATA['DOWN_BOUND'] < 480 else 480
+    if key == 'j':
+        DATA['UP_BOUND'] = DATA['UP_BOUND'] + 1 if DATA['UP_BOUND'] < 480 and DATA['UP_BOUND'] < DATA['DOWN_BOUND'] else DATA['UP_BOUND']
+        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] - 1 if DATA['DOWN_BOUND'] > 0 and DATA['DOWN_BOUND'] > DATA['UP_BOUND'] else DATA['DOWN_BOUND']
+    if key == 'l':
+        DATA['UP_BOUND'] = DATA['UP_BOUND'] - 1 if DATA['UP_BOUND'] > 0 else 0
+        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] + 1 if DATA['DOWN_BOUND'] < 480 else 480
+    
     print(f"NEW HUE range: ({DATA['HUE_MIN']} , {DATA['HUE_MAX']})  NEW BLUR size: {DATA['BLUR_SIZE']}")
 
     # Draw updated pallete
@@ -127,8 +139,15 @@ while (1):
             FLIP = not FLIP
         if key == ord('h'):
             HIDE = not HIDE
-        
-        # TODO: Add key for centroid range (i, j, k, l)
+        if key == ord('i'):
+            update_data('i')
+        if key == ord('j'):
+            update_data('j')
+        if key == ord('k'):
+            update_data('k')
+        if key == ord('l'):
+            update_data('l')
+
         # TODO: Add Preview lines for centroid range
         # TODO: Add centroid range data (x1, x2, y1, y2) to json
         # region FRAME PROCESSING
@@ -180,6 +199,9 @@ while (1):
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 64, 64), 1)
             cv.putText(current, "[ESC]: EXIT",  (int(current.shape[1] - (len("CONTROLLS") * 20) - 5),168),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (64, 64, 255), 1)
+
+            cv.line(current, (0, DATA['UP_BOUND']), (current.shape[1], DATA['UP_BOUND']), (255, 0, 0), 2)
+            cv.line(current, (0, DATA['DOWN_BOUND']), (current.shape[1], DATA['DOWN_BOUND']), (255, 0, 0), 2)
 # endregion
         cv.imshow('Original', current)
         cv.imshow('Hue channel', cv.resize(
