@@ -15,6 +15,8 @@ DATA = load_variables()
 # Select video source
 #cap = cv.VideoCapture(0)
 cap = cv.VideoCapture('./assets/cam.avi')
+#Loading logo
+logo = cv.imread('../Icons/TuberSelectorIconSimpleCyan.jpg', 1)
 
 
 def setImageResolution():
@@ -36,6 +38,9 @@ aux_timestamp = 0
 img_count = 332
 STORE_IMG = False
 QUIT = False
+FLIP = False
+
+
 
 while (1):
 
@@ -44,6 +49,8 @@ while (1):
     if key == 32:  # Space
         STORE_IMG = not STORE_IMG
         print('Store images', 'ENABLED' if STORE_IMG else 'DISABLED')
+    if key == ord('f'):
+        FLIP = not FLIP
     elif key == 27:  # ESC
         QUIT = not QUIT
     elif key == ord('c'):
@@ -55,7 +62,8 @@ while (1):
     # Read next frame
     ret, frame = cap.read()
     # Flip image
-    frame = cv.flip(frame, -1)
+    if FLIP:
+        frame = cv.flip(frame, -1)
     frame_counter += 1
 
     hue, img_th = pr.hsv_otsu_threshold(
@@ -84,7 +92,8 @@ while (1):
         hue, (hue.shape[1] // 2, hue.shape[0] // 2), cv.INTER_AREA))
     cv.imshow('Threshold', cv.resize(
         img_th, (img_th.shape[1] // 2, img_th.shape[0] // 2), cv.INTER_AREA))
-
+    cv.imshow('LOGO', cv.resize(
+        logo, (hue.shape[1], hue.shape[0]), cv.INTER_AREA))
     # TIME
     timestamp = time.perf_counter()
     if timestamp - aux_timestamp >= DATA['PHOTO_INTERVAL']:
