@@ -13,8 +13,8 @@ def load_variables():
 DATA = load_variables()
 
 # Select video source
-cap = cv.VideoCapture(0)
-# cap = cv.VideoCapture('./assets/cam.avi')
+#cap = cv.VideoCapture(0)
+cap = cv.VideoCapture('./assets/cam.avi')
 
 # Default res is 640x480 px, but the camera supports a resolution of 1280x720 px
 # Use next function to update image resolution
@@ -42,7 +42,7 @@ while (1):
     key = cv.waitKey(video_speed)
     if key == 32:  # Space
         STORE_IMG = not STORE_IMG
-        print('Sotre images', 'ENABLED' if STORE_IMG else 'DISABLED')
+        print('Store images', 'ENABLED' if STORE_IMG else 'DISABLED')
     elif key == 27:  # ESC
         QUIT = not QUIT
 
@@ -56,7 +56,7 @@ while (1):
         frame, DATA['BLUR_SIZE'], DATA['HUE_MIN'], DATA['HUE_MAX'])
 
     boxes = pr.box_detection(
-        img_th, DATA['MIN_PX_CONTOUR'], DATA['BOUNDING_BOX_MARGIN'])
+        img_th, DATA['MIN_PX_CONTOUR'], DATA['DOWN_BOUND'], DATA['UP_BOUND'] ,DATA['BOUNDING_BOX_MARGIN'])
 
     if len(boxes):
 

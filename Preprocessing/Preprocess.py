@@ -22,7 +22,7 @@ def hsv_otsu_threshold(image, blur, value_min, value_max, channel=0):
     return hsv[:, :, channel], thr
 
 
-def box_detection(img_th, min_pixels, margin = 0):
+def box_detection(img_th, min_pixels, down_boundary, up_boundary, margin = 0):
     boxes = []
     # Find all contours
     contours, hierarchy = cv.findContours(
@@ -36,14 +36,14 @@ def box_detection(img_th, min_pixels, margin = 0):
         c3 = y-margin >= 0 and y + h + margin <= img_th.shape[0]
         c4 = M['m00'] != 0
         if c1 and c2 and c3 and c4:
-            boxes.append((x-margin, y-margin, w+2*margin, h+2*margin))
-            if M['m00'] != 0:
-                cx = int(M['m10']/M['m00'])
-                cy = int(M['m01']/M['m00'])
+            cx = int(M['m10']/M['m00'])
+            cy = int(M['m01']/M['m00'])
+            if up_boundary < cy < down_boundary:
+                boxes.append((x-margin, y-margin, w+2*margin, h+2*margin))
                 cv.drawContours(img_th, [cont], -1, (0, 255, 0), 2)
                 cv.circle(img_th, (cx, cy), 7, (0, 0, 255), -1)
                 cv.putText(img_th, "center", (cx - 20, cy - 20),
-                           cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+                           cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
     return boxes
 
 

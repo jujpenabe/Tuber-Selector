@@ -5,10 +5,7 @@
      "HUE_MAX": 17,
      "BOUNDING_BOX_MARGIN": 25,
      "MIN_PX_CONTOUR": 100,
-<<<<<<< HEAD
-     "UP_BOUND": 100,
-     "DOWN_BOUND": 200
-=======
+     "UP_BOUND": 145,
+     "DOWN_BOUND": 325,
      "PHOTO_INTERVAL": 1
->>>>>>> 5980dc1f5e02d3d0fe55c853db612a0a660005b5
 }

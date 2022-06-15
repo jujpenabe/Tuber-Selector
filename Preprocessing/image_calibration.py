@@ -69,7 +69,7 @@ def update_data(key):
         DATA['UP_BOUND'] = DATA['UP_BOUND'] - 1 if DATA['UP_BOUND'] > 0 else 0
         DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] + 1 if DATA['DOWN_BOUND'] < 480 else 480
     
-    print(f"NEW HUE range: ({DATA['HUE_MIN']} , {DATA['HUE_MAX']})  NEW BLUR size: {DATA['BLUR_SIZE']}")
+    print(f"NEW HUE range: (min:{DATA['HUE_MIN']} , max:{DATA['HUE_MAX']})   NEW BLUR size: {DATA['BLUR_SIZE']}   NEW boundaries: (up:{DATA['UP_BOUND']}, down:{DATA['DOWN_BOUND']})")
 
     # Draw updated pallete
     RADIUS = 175
@@ -148,8 +148,6 @@ while (1):
         if key == ord('l'):
             update_data('l')
 
-        # TODO: Add Preview lines for centroid range
-        # TODO: Add centroid range data (x1, x2, y1, y2) to json
         # region FRAME PROCESSING
 
         hue, img_th = pr.hsv_otsu_threshold(frame, DATA['BLUR_SIZE'], DATA['HUE_MIN'], DATA['HUE_MAX'])
@@ -199,16 +197,26 @@ while (1):
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 64, 64), 1)
             cv.putText(current, "[ESC]: EXIT",  (int(current.shape[1] - (len("CONTROLLS") * 20) - 5),168),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (64, 64, 255), 1)
+            
 
             cv.line(current, (0, DATA['UP_BOUND']), (current.shape[1], DATA['UP_BOUND']), (255, 0, 0), 2)
             cv.line(current, (0, DATA['DOWN_BOUND']), (current.shape[1], DATA['DOWN_BOUND']), (255, 0, 0), 2)
+
+            cv.putText(current, f.format("UP", DATA['UP_BOUND']), (5, DATA['UP_BOUND']-5),
+                       cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 64, 64), 1)
+            cv.putText(current, "               [I]:+UP+DOWN [J]:-UP+DOWN", (5, DATA['UP_BOUND']-5),
+                       cv.FONT_HERSHEY_SIMPLEX, 0.3, (255, 64, 64), 1)
+            cv.putText(current, f.format("DOWN", DATA['DOWN_BOUND']), (5, DATA['DOWN_BOUND']+15),
+                       cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 64, 64), 1)
+            cv.putText(current, "                   [K]:-UP-DOWN [L]:+UP-DOWN", (5, DATA['DOWN_BOUND']+15),
+                       cv.FONT_HERSHEY_SIMPLEX, 0.3, (255, 64, 64), 1)
 # endregion
         cv.imshow('Original', current)
         cv.imshow('Hue channel', cv.resize(
             hue, (hue.shape[1] // 2, hue.shape[0] // 2), cv.INTER_AREA))
         cv.imshow('Threshold', cv.resize(
             img_th, (img_th.shape[1] // 2, img_th.shape[0] // 2), cv.INTER_AREA))
-
+        # TODO: Show another image with just the filtered data. (Tip: Use code from box detection in file Preprocess)
         # endregion
 
         # region VIDEO CONTROL
