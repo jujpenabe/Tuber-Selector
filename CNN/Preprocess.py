@@ -22,7 +22,7 @@ def hsv_otsu_threshold(image, blur, value_min, value_max, channel=0):
     return hsv[:, :, channel], thr
 
 
-def box_detection(img_th, min_pixels, down_boundary, up_boundary, margin = 0):
+def box_detection(img_th, min_pixels, down_boundary, up_boundary, margin=0):
     boxes = []
     # Find all contours
     contours, hierarchy = cv.findContours(
