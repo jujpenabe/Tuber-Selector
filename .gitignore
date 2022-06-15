@@ -155,3 +155,5 @@ cython_debug/
 .idea/
 
 images/
+dataset/
+POTATOES/
