@@ -1,8 +1,8 @@
 import cv2 as cv
-import numpy as np
-import Preprocess as pr
 import json
 import time
+
+import Preprocess as pr
 
 
 def load_variables():
@@ -16,9 +16,10 @@ DATA = load_variables()
 #cap = cv.VideoCapture(0)
 cap = cv.VideoCapture('./assets/cam.avi')
 
-# Default res is 640x480 px, but the camera supports a resolution of 1280x720 px
-# Use next function to update image resolution
+
 def setImageResolution():
+    # Default res is 640x480 px, but the camera supports a resolution of 1280x720 px
+    # Use next function to update image resolution
     w = cap.get(cv.CAP_PROP_FRAME_WIDTH)
     h = cap.get(cv.CAP_PROP_FRAME_HEIGHT)
     print("Frame default resolution:", w, h)
@@ -45,6 +46,11 @@ while (1):
         print('Store images', 'ENABLED' if STORE_IMG else 'DISABLED')
     elif key == 27:  # ESC
         QUIT = not QUIT
+    elif key == ord('c'):
+        filename = f'img_{img_count:04d}.jpg'
+        print(f'New image Capture {filename}')
+        cv.imwrite('images/' + filename, res_potato)
+        img_count += 1
 
     # Read next frame
     ret, frame = cap.read()
@@ -56,7 +62,7 @@ while (1):
         frame, DATA['BLUR_SIZE'], DATA['HUE_MIN'], DATA['HUE_MAX'])
 
     boxes = pr.box_detection(
-        img_th, DATA['MIN_PX_CONTOUR'], DATA['DOWN_BOUND'], DATA['UP_BOUND'] ,DATA['BOUNDING_BOX_MARGIN'])
+        img_th, DATA['MIN_PX_CONTOUR'], DATA['DOWN_BOUND'], DATA['UP_BOUND'], DATA['BOUNDING_BOX_MARGIN'])
 
     if len(boxes):
 
