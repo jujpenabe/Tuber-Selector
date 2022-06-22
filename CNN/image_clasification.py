@@ -43,8 +43,8 @@ DATA = load_variables()
 MODEL = load_model()
 
 # Select video source
-cap = cv.VideoCapture(0)
-# cap = cv.VideoCapture('./Preprocessing/assets/cam.avi')
+# cap = cv.VideoCapture(0)
+cap = cv.VideoCapture('./Preprocessing/assets/cam.avi')
 
 
 def setImageResolution():
