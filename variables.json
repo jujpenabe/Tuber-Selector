@@ -1,11 +1,12 @@
 {
      "IMG_SIZE": 250,
-     "BLUR_SIZE": 23,
-     "HUE_MIN": 132,
-     "HUE_MAX": 17,
+     "FLIP": false,
+     "BLUR_SIZE": 22,
+     "HUE_MIN": 153,
+     "HUE_MAX": 22,
      "BOUNDING_BOX_MARGIN": 25,
      "MIN_PX_CONTOUR": 100,
-     "UP_BOUND": 145,
-     "DOWN_BOUND": 325,
+     "UP_BOUND": 266,
+     "DOWN_BOUND": 462,
      "PHOTO_INTERVAL": 1
 }

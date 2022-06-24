@@ -19,20 +19,21 @@ def load_model():
         tf.keras.layers.Conv2D(
             16, (3, 3), activation='relu', input_shape=(250, 250, 3)),
         tf.keras.layers.MaxPooling2D(2, 2),
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(16, (3, 3), activation='relu'),
         tf.keras.layers.MaxPooling2D(2, 2),
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(32, (5, 5), activation='relu'),
         tf.keras.layers.MaxPooling2D(2, 2),
-        tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(32, (5, 5), activation='relu'),
         tf.keras.layers.MaxPooling2D(2, 2),
         # Flatten layer
         tf.keras.layers.Flatten(),
         # Fully connected layers
-        tf.keras.layers.Dense(512, activation='relu'),
-        tf.keras.layers.Dense(256, activation='relu'),
         tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dense(32, activation='relu'),
         # Output neuron
-        tf.keras.layers.Dense(1, activation='sigmoid')
+        tf.keras.layers.Dense(1, activation='sigmoid'),
+        # TODO tf.keras.layers.Dense(1, activation='linear') or scale parameter
     ])
     model.load_weights('./CNN/checkpoints/last_training')
 
@@ -42,9 +43,10 @@ def load_model():
 DATA = load_variables()
 MODEL = load_model()
 
+
 # Select video source
-# cap = cv.VideoCapture(0)
-cap = cv.VideoCapture('./Preprocessing/assets/cam.avi')
+cap = cv.VideoCapture(0)
+# cap = cv.VideoCapture('./Preprocessing/assets/cam.avi')
 
 
 def setImageResolution():
@@ -59,6 +61,8 @@ def setImageResolution():
     h = cap.get(cv.CAP_PROP_FRAME_HEIGHT)
     print("NEW Frame default resolution:", w, h)
 
+
+setImageResolution()
 
 video_speed = 10
 frame_counter = 0
@@ -76,8 +80,9 @@ while (1):
 
     # Read next frame
     ret, frame = cap.read()
-    # Flip image
-    frame = cv.flip(frame, -1)
+    # Flip image (TEMP)
+    if DATA['FLIP']:
+        frame = cv.flip(frame, -1)
     frame_counter += 1
 
     hue, img_th = pr.hsv_otsu_threshold(
