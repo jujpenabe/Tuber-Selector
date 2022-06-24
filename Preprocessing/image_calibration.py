@@ -5,9 +5,10 @@ import Preprocess as pr
 import json
 
 # Select video source
-# cap = cv.VideoCapture(1)
-cap = cv.VideoCapture('./assets/cam.avi')
+cap = cv.VideoCapture(1)
 
+# cap = cv.VideoCapture('./assets/Crop.mp4')
+# recorder = cv.VideoWriter('threshold.avi', cv.VideoWriter_fourcc(*'DIVX'), 30, (int(cap.get(3)), int(cap.get(4))), 0)
 hue_palette = cv.imread('./assets/hue_palette.png', 1)
 
 video_speed = 10
@@ -17,6 +18,7 @@ FLIP = False
 BLINK = False
 PAUSE = False
 QUIT = False
+LOOP = True
 DATA = {}
 
 
@@ -33,7 +35,7 @@ def update_blink(counter, boolean, wait=30):
         if counter % wait == 0:
             boolean = not boolean
     else:
-        if counter % int(wait/3) == 0:
+        if counter % int(wait / 3) == 0:
             boolean = not boolean
     return boolean
 
@@ -57,19 +59,22 @@ def update_data(key):
     if key == 'e':
         DATA['BLUR_SIZE'] = DATA['BLUR_SIZE'] + 1 if DATA['BLUR_SIZE'] < 150 else 150
     if key == 'i':
-        DATA['UP_BOUND'] = DATA['UP_BOUND'] - 1 if DATA['UP_BOUND'] > 0 else 0
-        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] - 1 if DATA['UP_BOUND'] > 0 else 0 
+        DATA['UP_BOUND'] = DATA['UP_BOUND'] - 5 if DATA['UP_BOUND'] > 0 else 0
+        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] - 5 if DATA['UP_BOUND'] > 0 else 0
     if key == 'k':
-        DATA['UP_BOUND'] = DATA['UP_BOUND'] + 1 if DATA['UP_BOUND'] < 480 else 480
-        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] + 1 if DATA['DOWN_BOUND'] < 480 else 480
+        DATA['UP_BOUND'] = DATA['UP_BOUND'] + 5 if DATA['UP_BOUND'] < 1080 else 1080
+        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] + 5 if DATA['DOWN_BOUND'] < 1080 else 1080
     if key == 'j':
-        DATA['UP_BOUND'] = DATA['UP_BOUND'] + 1 if DATA['UP_BOUND'] < 480 and DATA['UP_BOUND'] < DATA['DOWN_BOUND'] else DATA['UP_BOUND']
-        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] - 1 if DATA['DOWN_BOUND'] > 0 and DATA['DOWN_BOUND'] > DATA['UP_BOUND'] else DATA['DOWN_BOUND']
+        DATA['UP_BOUND'] = DATA['UP_BOUND'] + 5 if DATA['UP_BOUND'] < 1080 and DATA['UP_BOUND'] < DATA[
+            'DOWN_BOUND'] else DATA['UP_BOUND']
+        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] - 5 if DATA['DOWN_BOUND'] > 0 and DATA['DOWN_BOUND'] > DATA[
+            'UP_BOUND'] else DATA['DOWN_BOUND']
     if key == 'l':
-        DATA['UP_BOUND'] = DATA['UP_BOUND'] - 1 if DATA['UP_BOUND'] > 0 else 0
-        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] + 1 if DATA['DOWN_BOUND'] < 480 else 480
-    
-    print(f"NEW HUE range: (min:{DATA['HUE_MIN']} , max:{DATA['HUE_MAX']})   NEW BLUR size: {DATA['BLUR_SIZE']}   NEW boundaries: (up:{DATA['UP_BOUND']}, down:{DATA['DOWN_BOUND']})")
+        DATA['UP_BOUND'] = DATA['UP_BOUND'] - 5 if DATA['UP_BOUND'] > 0 else 0
+        DATA['DOWN_BOUND'] = DATA['DOWN_BOUND'] + 5 if DATA['DOWN_BOUND'] < 1080 else 1080
+
+    print(
+        f"NEW HUE range: (min:{DATA['HUE_MIN']} , max:{DATA['HUE_MAX']})   NEW BLUR size: {DATA['BLUR_SIZE']}   NEW boundaries: (up:{DATA['UP_BOUND']}, down:{DATA['DOWN_BOUND']})")
 
     # Draw updated pallete
     RADIUS = 175
@@ -112,14 +117,19 @@ while (1):
     frame_counter += 1
     # Check if Video has reached the end
     if frame_counter == cap.get(cv.CAP_PROP_FRAME_COUNT):
+
         frame_counter = 0
         cap.set(cv.CAP_PROP_POS_FRAMES, 0)  # Repeat Video
-        continue
+        if LOOP:
+            continue
+        else:
+            QUIT = True
+            continue
     if not ret:
         QUIT = True
     # Pause Loop
     while (1):
-        # Wait key pressed event
+        # region INPUT EVENT
         key = cv.waitKey(video_speed)
         if key == ord('w'):
             update_data('w')
@@ -139,6 +149,8 @@ while (1):
             FLIP = not FLIP
         if key == ord('h'):
             HIDE = not HIDE
+        if key == ord('r'):
+            LOOP = not LOOP
         if key == ord('i'):
             update_data('i')
         if key == ord('j'):
@@ -147,10 +159,11 @@ while (1):
             update_data('k')
         if key == ord('l'):
             update_data('l')
-
+        # endregion
         # region FRAME PROCESSING
 
         hue, img_th = pr.hsv_otsu_threshold(frame, DATA['BLUR_SIZE'], DATA['HUE_MIN'], DATA['HUE_MAX'])
+
         if not PAUSE:
             pr.contour_detection(frame, img_th, DATA['MIN_PX_CONTOUR'])
 
@@ -185,35 +198,38 @@ while (1):
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 128), 1)
             cv.putText(current, "[A]: -MAX  [D]: +MAX", (int(current.shape[1] - (len("CONTROLLS") * 20) - 5), 72),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 64, 64), 1)
-            cv.putText(current, "BLUR:  [Q]: -Blur  [E]: +Blur", (int(current.shape[1] - (len("CONTROLLS") * 20) - 67), 88),
+            cv.putText(current, "BLUR:  [Q]: -Blur  [E]: +Blur",
+                       (int(current.shape[1] - (len("CONTROLLS") * 20) - 67), 88),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (128, 0, 0), 1)
             cv.putText(current, "VIDEO:  [F]: Flip", (int(current.shape[1] - (len("CONTROLLS") * 20) - 70), 104),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
             cv.putText(current, "[SPACE]: Pause", (int(current.shape[1] - (len("CONTROLLS") * 20) - 5), 120),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
-            cv.putText(current, "PROGRAM:  [H]: Hide Interface", (int(current.shape[1] - (len("CONTROLLS") * 25) - 55), 136),
+            cv.putText(current, "PROGRAM:  [H]: Hide Interface",
+                       (int(current.shape[1] - (len("CONTROLLS") * 25) - 55), 136),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
-            cv.putText(current, "[ENTER]: Save",  (int(current.shape[1] - (len("CONTROLLS") * 20) - 5),152),
+            cv.putText(current, "[ENTER]: Save", (int(current.shape[1] - (len("CONTROLLS") * 20) - 5), 152),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 64, 64), 1)
-            cv.putText(current, "[ESC]: EXIT",  (int(current.shape[1] - (len("CONTROLLS") * 20) - 5),168),
+            cv.putText(current, "[ESC]: EXIT", (int(current.shape[1] - (len("CONTROLLS") * 20) - 5), 168),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (64, 64, 255), 1)
-            
 
             cv.line(current, (0, DATA['UP_BOUND']), (current.shape[1], DATA['UP_BOUND']), (255, 0, 0), 2)
             cv.line(current, (0, DATA['DOWN_BOUND']), (current.shape[1], DATA['DOWN_BOUND']), (255, 0, 0), 2)
 
-            cv.putText(current, f.format("UP", DATA['UP_BOUND']), (5, DATA['UP_BOUND']-5),
+            cv.putText(current, f.format("UP", DATA['UP_BOUND']), (5, DATA['UP_BOUND'] - 5),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 64, 64), 1)
-            cv.putText(current, "               [I]:+UP+DOWN [J]:-UP+DOWN", (5, DATA['UP_BOUND']-5),
+            cv.putText(current, "               [I]:+UP+DOWN [J]:-UP+DOWN", (5, DATA['UP_BOUND'] - 5),
                        cv.FONT_HERSHEY_SIMPLEX, 0.3, (255, 64, 64), 1)
-            cv.putText(current, f.format("DOWN", DATA['DOWN_BOUND']), (5, DATA['DOWN_BOUND']+15),
+            cv.putText(current, f.format("DOWN", DATA['DOWN_BOUND']), (5, DATA['DOWN_BOUND'] + 15),
                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (255, 64, 64), 1)
-            cv.putText(current, "                   [K]:-UP-DOWN [L]:+UP-DOWN", (5, DATA['DOWN_BOUND']+15),
+            cv.putText(current, "                   [K]:-UP-DOWN [L]:+UP-DOWN", (5, DATA['DOWN_BOUND'] + 15),
                        cv.FONT_HERSHEY_SIMPLEX, 0.3, (255, 64, 64), 1)
-# endregion
+        # endregion
         cv.imshow('Original', current)
+        # recorder.write(img_th)
         cv.imshow('Hue channel', cv.resize(
             hue, (hue.shape[1] // 2, hue.shape[0] // 2), cv.INTER_AREA))
+
         cv.imshow('Threshold', cv.resize(
             img_th, (img_th.shape[1] // 2, img_th.shape[0] // 2), cv.INTER_AREA))
         # TODO: Show another image with just the filtered data. (Tip: Use code from box detection in file Preprocess)
@@ -237,4 +253,5 @@ while (1):
         break
 # End process
 cap.release()
+# recorder.release()
 cv.destroyAllWindows()

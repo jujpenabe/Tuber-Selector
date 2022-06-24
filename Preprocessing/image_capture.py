@@ -1,6 +1,8 @@
-import cv2 as cv
 import json
 import time
+
+import cv as cv
+import cv2 as cv
 
 import Preprocess as pr
 
@@ -13,8 +15,9 @@ def load_variables():
 DATA = load_variables()
 
 # Select video source
-#cap = cv.VideoCapture(0)
-cap = cv.VideoCapture('./assets/cam.avi')
+cap = cv.VideoCapture(0)
+#cap = cv.VideoCapture('./assets/cam.avi')
+cap = cv.VideoCapture('./assets/Crop.mp4')
 #Loading logo
 logo = cv.imread('../Icons/TuberSelectorIconSimpleCyan.jpg', 1)
 
@@ -39,7 +42,6 @@ img_count = 332
 STORE_IMG = False
 QUIT = False
 FLIP = False
-
 
 
 while (1):
@@ -71,9 +73,7 @@ while (1):
 
     boxes = pr.box_detection(
         img_th, DATA['MIN_PX_CONTOUR'], DATA['DOWN_BOUND'], DATA['UP_BOUND'], DATA['BOUNDING_BOX_MARGIN'])
-
     if len(boxes):
-
         # Extract first image
         (x, y, w, h) = boxes[0]
         potato = frame[y:y+h, x:x+w, :]
@@ -85,7 +85,8 @@ while (1):
 
         for bb in boxes:
             (x, y, w, h) = bb
-            cv.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 3)
+            cv.rectangle(frame, (x, y), (x+w, y+h), (20, 100, 230), 5)
+            cv.rectangle(img_th, (x, y), (x+w, y+h), (20, 100, 230), 5)
 
     cv.imshow('Original', frame)
     cv.imshow('Hue channel', cv.resize(
